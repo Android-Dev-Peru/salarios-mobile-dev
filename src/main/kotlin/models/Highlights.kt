@@ -5,6 +5,7 @@ data class Highlights(
     val maxNormalizado: Double,
     val cuantoMasPorcentajeGanasEnUSD: Int,
     val porcentajePorCargo: Map<String, Double>,
+    val porcentajePorModalidad: Map<String, Double>,
 )
 
 data class HighlightsPorPais(

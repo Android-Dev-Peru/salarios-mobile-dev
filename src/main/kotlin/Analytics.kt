@@ -15,6 +15,7 @@ class Analytics(private val entries: List<Entry>) {
             maxNormalizado = max,
             cuantoMasPorcentajeGanasEnUSD = floor(cuantoMasGananEnUSD(entries) * 100).toInt(),
             porcentajePorCargo = porcentajePorCargo(entries),
+            porcentajePorModalidad = porcentajePorModalidad(entries),
         )
     }
 
@@ -98,6 +99,14 @@ class Analytics(private val entries: List<Entry>) {
 
         return groupByCargo.mapValues { (cargo, entries) ->
             round(entries.size.toDouble() / entriesInUSD.size * 100)
+        }
+    }
+
+    private fun porcentajePorModalidad(entries: List<Entry>): Map<String, Double> {
+        val groupByModalidad = entries.groupBy { it.modalidad }
+
+        return groupByModalidad.mapValues { (_, entriesPorModalidad) ->
+            round(entriesPorModalidad.size.toDouble() / entries.size * 100)
         }
     }
 

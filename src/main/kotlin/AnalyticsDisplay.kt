@@ -18,6 +18,7 @@ class AnalyticsConsole : AnalyticsDisplay {
         println("Salario más alto: ${highlights.maxNormalizado} ${Moneda.USD}")
         println("Los que ganan en USD, tienen salarios ${highlights.cuantoMasPorcentajeGanasEnUSD}% más altos que sus compatriotas que ganan en moneda local")
         println("La distribucion de salarios en USD por cargo es: ${highlights.porcentajePorCargo.map { "${it.key}: ${it.value}%" }.joinToString()}")
+        println("La distribución por modalidad es: ${highlights.porcentajePorModalidad.map { "${it.key}: ${it.value}%" }.joinToString()}")
     }
 
     override fun display(highlights: Map<String, HighlightsPorPais>) {

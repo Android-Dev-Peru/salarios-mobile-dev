@@ -9,55 +9,98 @@ class AnalyticsTest {
 
     val analytics = Analytics(testEntries)
 
-    @Test
-    fun `calcula minimo salario normalizado`() {
-        val highlights = analytics.highlights()
-        assertEquals(378.0, highlights.minNormalizado)
+    @Nested
+    @DisplayName("Calcula highlights generales")
+    inner class Highlights {
+
+        @Test
+        fun `calcula minimo salario normalizado`() {
+            val highlights = analytics.highlights()
+            assertEquals(378.0, highlights.minNormalizado)
+        }
+
+        @Test
+        fun `calcula maximo salario normalizado`() {
+            val highlights = analytics.highlights()
+            assertEquals(15_000.0, highlights.maxNormalizado)
+        }
+
+        @Test
+        fun `calcula cuanto mas ganan en USD`() {
+            val highlights = analytics.highlights()
+            assertEquals(65, highlights.cuantoMasPorcentajeGanasEnUSD)
+        }
+
+        @Test
+        fun `calcula porcentaje por cargo`() {
+            val highlights = analytics.highlights()
+            assertEquals(17.0, highlights.porcentajePorCargo["Semi/Mid"])
+            assertEquals(74.0, highlights.porcentajePorCargo["Senior"])
+            assertEquals(3.0, highlights.porcentajePorCargo["Contractor"])
+            assertEquals(6.0, highlights.porcentajePorCargo["Tech Lead"])
+            assertEquals(null, highlights.porcentajePorCargo["Junior"])
+        }
+
+        @Test
+        fun `calcula porcentaje por modalidad`() {
+            val highlights = analytics.highlights()
+            assertEquals(82.0, highlights.porcentajePorModalidad["Remoto"])
+            assertEquals(5.0, highlights.porcentajePorModalidad["Presencial"])
+            assertEquals(14.0, highlights.porcentajePorModalidad["Híbrido"])
+        }
     }
 
-    @Test
-    fun `calcula maximo salario normalizado`() {
-        val highlights = analytics.highlights()
-        assertEquals(15_000.0, highlights.maxNormalizado)
-    }
-
-    @Test
-    fun `calcula cuanto mas ganan en USD`() {
-        val highlights = analytics.highlights()
-        assertEquals(65, highlights.cuantoMasPorcentajeGanasEnUSD)
-    }
-
-    @Test
-    fun `calcula porcentaje por cargo`() {
-        val highlights = analytics.highlights()
-        assertEquals(17.0, highlights.porcentajePorCargo["Semi/Mid"])
-        assertEquals(74.0, highlights.porcentajePorCargo["Senior"])
-        assertEquals(3.0, highlights.porcentajePorCargo["Contractor"])
-        assertEquals(6.0, highlights.porcentajePorCargo["Tech Lead"])
-        assertEquals(null, highlights.porcentajePorCargo["Junior"])
-    }
-
-    @Test
-    fun `agrupa highlights por pais`() {
+    @Nested
+    @DisplayName("Calcula highlights por pais")
+    inner class HighlightsPorPais {
         val highlightsPorPais = analytics.highlightsPorPais()
-        assertEquals(6, highlightsPorPais.size)
-    }
+        val highlightsPeru by lazy { highlightsPorPais["Perú"] }
 
-    @Test
-    fun `calcula highlights por pais`() {
-        val highlightsPorPais = analytics.highlightsPorPais()
+        @Test
+        fun `agrupa highlights por pais`() {
+            assertEquals(6, highlightsPorPais.size)
+            assertNotNull(highlightsPeru)
+        }
 
-        val highlightsPeru = highlightsPorPais["Perú"]
-        checkNotNull(highlightsPeru)
+        @Test
+        fun `calcula minimo salario en moneda local`() {
+            assertEquals(1_400.0, highlightsPeru?.minMonedaLocal)
+        }
 
-        assertEquals(1_400.0, highlightsPeru.minMonedaLocal)
-        assertEquals(16_500.0, highlightsPeru.maxMonedaLocal)
-        assertEquals(7_000.0, highlightsPeru.medianMonedaLocal)
-        assertEquals(2_300.0, highlightsPeru.minUSD)
-        assertEquals(15_000.0, highlightsPeru.maxUSD)
-        assertEquals(3500.0, highlightsPeru.medianUSD)
-        assertEquals(listOf("Rappi", "CSTI", "Delivery Hero"), highlightsPeru.topEmpresasMonedaLocal)
-        assertEquals(listOf("MT Llc", "Intive", "Metafy (antes)"), highlightsPeru.topEmpresasUSD)
+        @Test
+        fun `calcula maximo salario en moneda local`() {
+            assertEquals(16_500.0, highlightsPeru?.maxMonedaLocal)
+        }
+
+        @Test
+        fun `calcula mediana salario en moneda local`() {
+            assertEquals(7_000.0, highlightsPeru?.medianMonedaLocal)
+        }
+
+        @Test
+        fun `calcula minimo salario en USD`() {
+            assertEquals(2_300.0, highlightsPeru?.minUSD)
+        }
+
+        @Test
+        fun `calcula maximo salario en USD`() {
+            assertEquals(15_000.0, highlightsPeru?.maxUSD)
+        }
+
+        @Test
+        fun `calcula mediana salario en USD`() {
+            assertEquals(3500.0, highlightsPeru?.medianUSD)
+        }
+
+        @Test
+        fun `calcula top 3 empresas con salario mas alto en moneda local`() {
+            assertEquals(listOf("Rappi", "CSTI", "Delivery Hero"), highlightsPeru?.topEmpresasMonedaLocal)
+        }
+
+        @Test
+        fun `calcula top 3 empresas con salario mas alto en USD`() {
+            assertEquals(listOf("MT Llc", "Intive", "Metafy (antes)"), highlightsPeru?.topEmpresasUSD)
+        }
     }
 
     @Nested
