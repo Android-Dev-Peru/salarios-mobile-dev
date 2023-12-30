@@ -1,4 +1,4 @@
-package pe.dev.android
+package pe.dev.android.models
 
 /**
  * Tipo de cambio de la moneda a dólares.

@@ -1,10 +1,12 @@
 package pe.dev.android
 
+import pe.dev.android.models.Entry
+import pe.dev.android.models.Moneda
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 
-object EntryReader {
+object FileReader {
 
     fun from(fileName: String): List<Entry> {
         val inputStream: InputStream = this::class.java.classLoader.getResourceAsStream(fileName)

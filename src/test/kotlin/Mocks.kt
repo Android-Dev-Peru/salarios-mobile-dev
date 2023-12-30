@@ -1,7 +1,5 @@
-import pe.dev.android.Entry
-import pe.dev.android.EntryReader
-import pe.dev.android.Moneda
+import pe.dev.android.FileReader
 
-val testEntries = EntryReader.from("salarios-dic29.tsv")
+val testEntries = FileReader.from("salarios-dic29.tsv")
 
 val testEntry = testEntries.first()

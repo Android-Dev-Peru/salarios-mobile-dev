@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import pe.dev.android.Moneda
+import pe.dev.android.models.Moneda
 
 class EntryTest {
 

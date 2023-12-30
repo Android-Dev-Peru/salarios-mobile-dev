@@ -3,7 +3,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import pe.dev.android.Analytics
-import pe.dev.android.Moneda
+import pe.dev.android.models.Moneda
 
 class AnalyticsTest {
 
