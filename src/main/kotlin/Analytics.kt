@@ -53,6 +53,30 @@ class Analytics(private val entries: List<Entry>) {
         )
     }
 
+    fun highlightsPorSeniority(): Map<String, HighlightsPorSeniority>{
+        return entries.groupBy { it.seniority }.mapValues { (seniority, entriesBySeniority) ->
+            val max = entriesBySeniority.maxOf { round( it.salarioNormalizado()) }
+            val min = entriesBySeniority.minOf { round(it.salarioNormalizado()) }
+
+            val promedio = entriesBySeniority.salarioNormalizadoPromedio()
+            val porcentajeComparadoAOtrosSeniorities = entries
+                .filter { it.seniority != seniority }
+                .groupBy { it.seniority }
+                .map { otroSeniority ->
+                    val otroPromedio = otroSeniority.value.salarioNormalizadoPromedio()
+                    val pair = otroSeniority.key to floor(otroPromedio / promedio * 100).toInt() - 100
+                    pair
+                }
+                .toMap()
+
+            HighlightsPorSeniority(
+                porcentajeComparadoAOtrosSeniorities = porcentajeComparadoAOtrosSeniorities,
+                minNormalizado = min,
+                maxNormalizado = max,
+            )
+        }
+    }
+
     /**
      * Esta funcion asume que:
      * - Cada pais tiene una sola moneda local. Quizas esto no aplique en todos los paises.
@@ -61,7 +85,7 @@ class Analytics(private val entries: List<Entry>) {
     private fun cuantoMasGananEnUSD(entries: List<Entry>): Double {
         val avg = entries
             .groupBy { it.moneda }
-            .map { it.key to it.value.map { it.salarioNormalizado() }.average() }
+            .map { it.key to it.value.salarioNormalizadoPromedio() }
 
         val avgUSD = avg.first { it.first == Moneda.USD }.second
         val avgAllOther = avg.filter { it.first != Moneda.USD }.map { it.second }.average()
@@ -70,7 +94,7 @@ class Analytics(private val entries: List<Entry>) {
 
     private fun porcentajePorCargo(entries: List<Entry>): Map<String, Double> {
         val entriesInUSD = entries.filter { it.moneda == Moneda.USD }
-        val groupByCargo = entriesInUSD.groupBy { it.cargo }
+        val groupByCargo = entriesInUSD.groupBy { it.seniority }
 
         return groupByCargo.mapValues { (cargo, entries) ->
             round(entries.size.toDouble() / entriesInUSD.size * 100)
@@ -97,12 +121,16 @@ class Analytics(private val entries: List<Entry>) {
         val promedioEnElQueSalarioLocalEsMasBajoQueUSD = entriesInMonedaLocal
             .groupBy { it.moneda }
             .map {
-                val promedioMonedaLocal = it.value.map { it.salarioNormalizado() }.average()
+                val promedioMonedaLocal = it.value.salarioNormalizadoPromedio()
                 val promedioEnElQueSalarioLocalEsMasBajoQueUSD = (promedioEnDolares / promedioMonedaLocal) - 1.0
-                it.key to floor(promedioEnElQueSalarioLocalEsMasBajoQueUSD * 100).toInt()
+                it.key to round(promedioEnElQueSalarioLocalEsMasBajoQueUSD * 100).toInt()
             }
             .toMap()
         return promedioEnElQueSalarioLocalEsMasBajoQueUSD
+    }
+
+    private fun List<Entry>.salarioNormalizadoPromedio(): Double {
+        return map { it.salarioNormalizado() }.average()
     }
 
     private fun List<Double>.median(): Double? {

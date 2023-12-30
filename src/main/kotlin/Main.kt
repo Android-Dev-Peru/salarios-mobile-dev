@@ -6,7 +6,8 @@ fun main() {
     val display = AnalyticsConsole()
 
     display.display(analytics.highlights())
-    display.display(analytics.highlightsPorPais())
     display.display(analytics.highlightsPorMoneda())
+    display.display(analytics.highlightsPorPais())
+    display.displayBySeniority(analytics.highlightsPorSeniority())
 }
 

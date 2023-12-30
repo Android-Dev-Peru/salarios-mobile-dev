@@ -17,7 +17,7 @@ data class Entry(
     val genero: String,
     val pais: String,
     val anosDeExperiencia: String,
-    val cargo: String,
+    val seniority: String,
     val empresa: String,
     val modalidad: String,
     val tecnologias: List<String>,

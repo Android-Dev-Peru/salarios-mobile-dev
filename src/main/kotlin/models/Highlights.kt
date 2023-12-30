@@ -30,3 +30,15 @@ data class HighlightsPorMoneda(
     val cuantoMasPorcentajeGanasEnUSD: Int,
     val porcentajeGananEnDolaresTrabajanRemote: Int,
 )
+
+data class HighlightsPorSeniority(
+    val minNormalizado: Double,
+    val maxNormalizado: Double,
+    /**
+     * Ejemplo, si comparamos contra:
+     * "Junior" -> -50, significa que en promedio, un Junior gana 50% menos
+     * "Semi/Mid" -> 0, significa que en promedio, un Semi/Mid gana lo mismo
+     * "Senior" -> 50, significa que en promedio, un Senior gana 50% más
+     */
+    val porcentajeComparadoAOtrosSeniorities: Map<String, Int>,
+)

@@ -1,14 +1,13 @@
 package pe.dev.android
 
-import pe.dev.android.models.Highlights
-import pe.dev.android.models.HighlightsPorMoneda
-import pe.dev.android.models.HighlightsPorPais
-import pe.dev.android.models.Moneda
+import pe.dev.android.models.*
+import kotlin.math.absoluteValue
 
 interface AnalyticsDisplay {
     fun display(highlights: Highlights)
     fun display(highlights: Map<String, HighlightsPorPais>)
     fun display(highlights: HighlightsPorMoneda)
+    fun displayBySeniority(highlights: Map<String, HighlightsPorSeniority>)
 }
 
 class AnalyticsConsole : AnalyticsDisplay {
@@ -56,6 +55,28 @@ class AnalyticsConsole : AnalyticsDisplay {
         println("Los que ganan en USD, tienen salarios ${highlights.cuantoMasPorcentajeGanasEnUSD}% más altos que sus compatriotas que ganan en moneda local")
         println("Los que ganan en USD, trabajan en modalidad remota ${highlights.porcentajeGananEnDolaresTrabajanRemote}% de las veces")
         println("La distribucion de salarios en USD por pais es: ${highlights.promedioEnElQueSalarioLocalEsMasBajoQueUSD.map { "${it.key}: ${it.value}%" }.joinToString()}")
+    }
+
+    override fun displayBySeniority(highlights: Map<String, HighlightsPorSeniority>) {
+        header("HIGHLIGHTS POR SENIORITY", "🥸")
+        highlights.forEach { (seniority, highlights) ->
+            println(seniority)
+            println("Salario más bajo: ${highlights.minNormalizado} ${Moneda.USD}")
+            println("Salario más alto: ${highlights.maxNormalizado} ${Moneda.USD}")
+            println("Comparado a otros seniorities: \n" +
+                    highlights.porcentajeComparadoAOtrosSeniorities
+                        .map {
+                            val comparacion = when {
+                                it.value > 0 -> "gana ${it.value}% más"
+                                it.value < 0 -> "gana ${it.value.absoluteValue}% menos"
+                                else -> "gana lo mismo"
+                            }
+                            "  - Un ${it.key} $comparacion"
+                        }
+                        .joinToString("\n")
+            )
+            linea()
+        }
     }
 
     private fun linea() {

@@ -30,11 +30,10 @@ class AnalyticsTest {
     @Test
     fun `calcula porcentaje por cargo`() {
         val highlights = analytics.highlights()
-        assertEquals(20.0, highlights.porcentajePorCargo["Semi/Mid"])
-        assertEquals(71.0, highlights.porcentajePorCargo["Senior"])
+        assertEquals(17.0, highlights.porcentajePorCargo["Semi/Mid"])
+        assertEquals(74.0, highlights.porcentajePorCargo["Senior"])
         assertEquals(3.0, highlights.porcentajePorCargo["Contractor"])
-        assertEquals(3.0, highlights.porcentajePorCargo["Tech Lead"])
-        assertEquals(3.0, highlights.porcentajePorCargo["Team Lead"])
+        assertEquals(6.0, highlights.porcentajePorCargo["Tech Lead"])
         assertEquals(null, highlights.porcentajePorCargo["Junior"])
     }
 
@@ -84,9 +83,9 @@ class AnalyticsTest {
         @Test
         fun `calcula cuanto mas bajo en promedio es el salario local comparado a USD`() {
             assertEquals(mapOf(
-                Moneda.PEN to 153,
-                Moneda.COP to 61,
-                Moneda.CLP to 40,
+                Moneda.PEN to 154,
+                Moneda.COP to 62,
+                Moneda.CLP to 41,
                 Moneda.MXN to 44,
             ), highlightsPorMoneda.promedioEnElQueSalarioLocalEsMasBajoQueUSD)
         }
@@ -98,6 +97,41 @@ class AnalyticsTest {
 
     }
 
+    @Nested
+    @DisplayName("Calcula highlights por seniority")
+    inner class HighlightsPorSeniority {
+        val highlightsPorSeniority = analytics.highlightsPorSeniority()
+
+        @Test
+        fun `agrupa por seniority`() {
+            assertNotNull(highlightsPorSeniority["Senior"])
+            assertNotNull(highlightsPorSeniority["Semi/Mid"])
+            assertNotNull(highlightsPorSeniority["Contractor"])
+            assertNotNull(highlightsPorSeniority["Tech Lead"])
+            assertNotNull(highlightsPorSeniority["Junior"])
+            assertEquals(5, highlightsPorSeniority.size)
+        }
+
+        @Test
+        fun `calcula porcentaje comparado a otros seniorities`() {
+            assertEquals(mapOf(
+                "Semi/Mid" to -51,
+                "Contractor" to 18,
+                "Junior" to -82,
+                "Tech Lead" to 9,
+            ), highlightsPorSeniority["Senior"]?.porcentajeComparadoAOtrosSeniorities)
+        }
+
+        @Test
+        fun `calcula minimo salario normalizado`() {
+            assertEquals(1300.0, highlightsPorSeniority["Senior"]?.minNormalizado)
+        }
+
+        @Test
+        fun `calcula maximo salario normalizado`() {
+            assertEquals(15_000.0, highlightsPorSeniority["Senior"]?.maxNormalizado)
+        }
+    }
 
 
 }

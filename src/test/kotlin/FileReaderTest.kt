@@ -19,7 +19,7 @@ class FileReaderTest {
         assertEquals("Másculino", firstEntry.genero)
         assertEquals("Perú", firstEntry.pais)
         assertEquals("5", firstEntry.anosDeExperiencia)
-        assertEquals("Semi/Mid", firstEntry.cargo)
+        assertEquals("Semi/Mid", firstEntry.seniority)
         assertEquals("Encora", firstEntry.empresa)
         assertEquals("Híbrido", firstEntry.modalidad)
         assertEquals(listOf("Android"), firstEntry.tecnologias)

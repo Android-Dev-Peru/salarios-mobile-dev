@@ -21,7 +21,7 @@ object FileReader {
                 genero = components[2],
                 pais = components[3],
                 anosDeExperiencia = components[4],
-                cargo = components[5],
+                seniority = components[5],
                 empresa = components[6],
                 modalidad = components[7],
                 tecnologias = components[8].split(", "),
