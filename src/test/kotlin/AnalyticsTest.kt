@@ -1,7 +1,9 @@
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import pe.dev.android.Analytics
-import pe.dev.android.EntryReader
+import pe.dev.android.Moneda
 
 class AnalyticsTest {
 
@@ -57,8 +59,45 @@ class AnalyticsTest {
         assertEquals(3500.0, highlightsPeru.medianUSD)
         assertEquals(listOf("Rappi", "CSTI", "Delivery Hero"), highlightsPeru.topEmpresasMonedaLocal)
         assertEquals(listOf("MT Llc", "Intive", "Metafy (antes)"), highlightsPeru.topEmpresasUSD)
+    }
+
+    @Nested
+    @DisplayName("Calcula highlights por moneda")
+    inner class HighlightsPorMoneda {
+        val highlightsPorMoneda = analytics.highlightsPorMoneda()
+
+        @Test
+        fun `calcula minimo USD entre todos los registros`() {
+            assertEquals(1_350.0, highlightsPorMoneda.minUSD)
+        }
+
+        @Test
+        fun `calcula maximo USD entre todos los registros`() {
+            assertEquals(15_000.0, highlightsPorMoneda.maxUSD)
+        }
+
+        @Test
+        fun `calcula cuanto mas porcentaja ganan en USD`() {
+            assertEquals(65, highlightsPorMoneda.cuantoMasPorcentajeGanasEnUSD)
+        }
+
+        @Test
+        fun `calcula cuanto mas bajo en promedio es el salario local comparado a USD`() {
+            assertEquals(mapOf(
+                Moneda.PEN to 153,
+                Moneda.COP to 61,
+                Moneda.CLP to 40,
+                Moneda.MXN to 44,
+            ), highlightsPorMoneda.promedioEnElQueSalarioLocalEsMasBajoQueUSD)
+        }
+
+        @Test
+        fun `calcula porcentaje de personas que trabajan remote y ganan en USD`() {
+            assertEquals(97, highlightsPorMoneda.porcentajeGananEnDolaresTrabajanRemote)
+        }
 
     }
+
 
 
 }

@@ -21,6 +21,19 @@ data class HighlightsPorPais(
     val topEmpresasUSD: List<String>,
 )
 
+data class HighlightsPorMoneda(
+    /**
+     * Ejemplo:
+     * Moneda.PEN -> 50%, significa que en promedio, los que ganan en PEN ganan 50% menos que los que ganan en USD
+     * Moneda.COP -> 100%, significa que en promedio, los que ganan en COP ganan 100% menos que los que ganan en USD
+     */
+    val promedioEnElQueSalarioLocalEsMasBajoQueUSD: Map<Moneda, Int>,
+    val minUSD: Double,
+    val maxUSD: Double,
+    val cuantoMasPorcentajeGanasEnUSD: Int,
+    val porcentajeGananEnDolaresTrabajanRemote: Int,
+)
+
 class Analytics(private val entries: List<Entry>) {
 
     fun highlights(): Highlights {
@@ -53,6 +66,21 @@ class Analytics(private val entries: List<Entry>) {
                 topEmpresasUSD = empresasConSalarioMasAlto(entriesInUSD),
             )
         }
+    }
+
+    fun highlightsPorMoneda(): HighlightsPorMoneda {
+        val entriesInUSD = entries.filter { it.moneda == Moneda.USD }
+
+        return HighlightsPorMoneda(
+            minUSD = entriesInUSD.minOf { it.salarioNormalizado() },
+            maxUSD = entriesInUSD.maxOf { it.salarioNormalizado() },
+            cuantoMasPorcentajeGanasEnUSD = floor(cuantoMasGananEnUSD(entries) * 100).toInt(),
+            promedioEnElQueSalarioLocalEsMasBajoQueUSD = promedioEnElQueSalarioLocalEsMasBajoQueUSD(entries),
+            porcentajeGananEnDolaresTrabajanRemote = floor(entriesInUSD
+                .filter { it.modalidad == "Remoto" }
+                .size.toDouble() / entriesInUSD.size * 100
+            ).toInt(),
+        )
     }
 
     /**
@@ -91,6 +119,22 @@ class Analytics(private val entries: List<Entry>) {
             .toList()
     }
 
+    private fun promedioEnElQueSalarioLocalEsMasBajoQueUSD(entries: List<Entry>): Map<Moneda, Int> {
+        val entriesInUSD = entries.filter { it.moneda == Moneda.USD }
+        val entriesInMonedaLocal = entries.filter { it.moneda != Moneda.USD }
+
+        val promedioEnDolares = entriesInUSD.map { it.salario }.average()
+        val promedioEnElQueSalarioLocalEsMasBajoQueUSD = entriesInMonedaLocal
+            .groupBy { it.moneda }
+            .map {
+                val promedioMonedaLocal = it.value.map { it.salarioNormalizado() }.average()
+                val promedioEnElQueSalarioLocalEsMasBajoQueUSD = (promedioEnDolares / promedioMonedaLocal) - 1.0
+                it.key to floor(promedioEnElQueSalarioLocalEsMasBajoQueUSD * 100).toInt()
+            }
+            .toMap()
+        return promedioEnElQueSalarioLocalEsMasBajoQueUSD
+    }
+
     private fun List<Double>.median(): Double? {
         if (isEmpty()) return null
         val sortedList = sorted()
@@ -107,6 +151,7 @@ class Analytics(private val entries: List<Entry>) {
 interface AnalyticsDisplay {
     fun display(highlights: Highlights)
     fun display(highlights: Map<String,HighlightsPorPais>)
+    fun display(highlights: HighlightsPorMoneda)
 }
 
 class AnalyticsConsole : AnalyticsDisplay {
@@ -145,6 +190,15 @@ class AnalyticsConsole : AnalyticsDisplay {
             }
             linea()
         }
+    }
+
+    override fun display(highlights: HighlightsPorMoneda) {
+        header("HIGHLIGHTS POR MONEDA", "💰")
+        println("Salario más bajo USD: ${highlights.minUSD} ${Moneda.USD}")
+        println("Salario más alto USD: ${highlights.maxUSD} ${Moneda.USD}")
+        println("Los que ganan en USD, tienen salarios ${highlights.cuantoMasPorcentajeGanasEnUSD}% más altos que sus compatriotas que ganan en moneda local")
+        println("Los que ganan en USD, trabajan en modalidad remota ${highlights.porcentajeGananEnDolaresTrabajanRemote}% de las veces")
+        println("La distribucion de salarios en USD por pais es: ${highlights.promedioEnElQueSalarioLocalEsMasBajoQueUSD.map { "${it.key}: ${it.value}%" }.joinToString()}")
     }
 
     private fun linea() {

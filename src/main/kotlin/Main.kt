@@ -7,5 +7,6 @@ fun main() {
 
     display.display(analytics.highlights())
     display.display(analytics.highlightsPorPais())
+    display.display(analytics.highlightsPorMoneda())
 }
 
