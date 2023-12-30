@@ -35,4 +35,30 @@ class AnalyticsTest {
         assertEquals(3.0, highlights.porcentajePorCargo["Team Lead"])
         assertEquals(null, highlights.porcentajePorCargo["Junior"])
     }
+
+    @Test
+    fun `agrupa highlights por pais`() {
+        val highlightsPorPais = analytics.highlightsPorPais()
+        assertEquals(6, highlightsPorPais.size)
+    }
+
+    @Test
+    fun `calcula highlights por pais`() {
+        val highlightsPorPais = analytics.highlightsPorPais()
+
+        val highlightsPeru = highlightsPorPais["Perú"]
+        checkNotNull(highlightsPeru)
+
+        assertEquals(1_400.0, highlightsPeru.minMonedaLocal)
+        assertEquals(16_500.0, highlightsPeru.maxMonedaLocal)
+        assertEquals(7_000.0, highlightsPeru.medianMonedaLocal)
+        assertEquals(2_300.0, highlightsPeru.minUSD)
+        assertEquals(15_000.0, highlightsPeru.maxUSD)
+        assertEquals(3500.0, highlightsPeru.medianUSD)
+        assertEquals(listOf("Rappi", "CSTI", "Delivery Hero"), highlightsPeru.topEmpresasMonedaLocal)
+        assertEquals(listOf("MT Llc", "Intive", "Metafy (antes)"), highlightsPeru.topEmpresasUSD)
+
+    }
+
+
 }
